@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="be8d3e93-a1e0-4228-8ccc-7ff8160060a2" basePath="/api" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="3cd35508-b8ea-4d69-b152-2289d0bb67ba" >
+		<anypoint-mq:connection clientId="2b3480629bac41c1beb00901fcaf3a93" clientSecret="c40F18bB00424cE0B3201849c91DAC43" />
+	</anypoint-mq:config>
+	<flow name="hub-mqFlow" doc:id="0a5858b2-a5ce-4b10-8de5-ac9f1fc060b4" >
+		<http:listener doc:name="Listener" doc:id="a8fc8030-5e00-4efc-89a8-2a650a45b3f5" config-ref="HTTP_Listener_config" path="/"/>
+		<anypoint-mq:publish doc:name="Publish" doc:id="f4b22812-b87e-497a-a1ff-c03c9053bf9f" />
+	</flow>
+</mule>

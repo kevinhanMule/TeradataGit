@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5f0bb6f0-8f73-4e1a-9804-20aece558d78" >
+		<db:my-sql-connection host="eksprod.tools.mulesoft.com" port="30728" user="khMySQLDB" password="Password123?Sixteen" database="khMySQLDBDemo" />
+	</db:config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="08ea6aca-bd1e-4c01-a445-f10eeb0c66a1" >
+		<salesforce:basic-connection username="kevinhan007@mulesoft.com" password="Kdh126rial!" securityToken="ZGBUl5pNgVKIDoTWV0ocmBO3" />
+	</salesforce:sfdc-config>
+	<flow name="salesforce-to-mysql-ptopFlow" doc:id="0f413b82-ef9a-45c5-9b88-bfd6d69f1903" >
+		<scheduler doc:name="Scheduler" doc:id="a0a336e0-2e36-40d6-ba3d-311b5eb87e38">
+			<scheduling-strategy>
+				<fixed-frequency frequency="30" timeUnit="SECONDS" />
+			</scheduling-strategy>
+		</scheduler>
+		<salesforce:query doc:name="Query" doc:id="fa4addb0-213b-42a4-a801-3a61d7e81b9d" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Name, AccountNumber, Phone, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry FROM Account]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<batch:job jobName="salesforce-to-mysql-BatchJob" doc:id="53d03ce5-27a2-45a7-96f8-423c34b6eaea" >
+			<batch:process-records >
+				<batch:step name="queryExistingAccounts" doc:id="8c99fb9f-f237-40ac-94a4-79906793062f" >
+					<db:select doc:name="Check Account Existence in DB" doc:id="2f278c4a-846d-4e6c-922c-d08b521b1a98" config-ref="Database_Config" target="recordExists" targetValue="#[payload[0]]">
+						<db:sql ><![CDATA[SELECT Name, AccountNumber, Phone, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry FROM Accounts WHERE AccountNumber = :AccountNumber]]></db:sql>
+						<db:input-parameters ><![CDATA[#[{'email' : payload.AccountNumber}]]]></db:input-parameters>
+					</db:select>
+					<ee:transform doc:name="Transform SFDC fields to DB fields" doc:id="79415528-20d7-43c9-a550-f85c4e2244f4" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"Name" : payload.Name,
+	"AccountNumber" : payload.AccountNumber,
+	"Phone" : payload.Phone,
+	"BillingStreet" : payload.BillingStreet,
+	"BillingCity" : payload.BillingCity,
+	"BillingState" : payload.BillingState,
+	"BillingPostalCode" : payload.BillingPostalCode,
+	"BillingCountry" : payload.BillingCountry,
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</batch:step>
+				<batch:step name="insertAccounts" doc:id="1c703f7c-f0ef-4c40-840d-499390807096" acceptExpression="vars.recordExists == null">
+					<db:insert doc:name="Insert" doc:id="633cf21c-833d-4b34-9db0-a82a18a02eeb" config-ref="Database_Config">
+						<db:sql ><![CDATA[INSERT INTO Accounts (Name, AccountNumber, Phone, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry) VALUES (:Name, :AccountNumber, :Phone, :BillingStreet, :BillingCity, :BillingState, :BillingPostalCode, :BillingCountry)]]></db:sql>
+						<db:input-parameters ><![CDATA[#[{'Name' : payload.Name, 'AccountNumber' : payload.AccountNumber, 'Phone' : payload.Phone, 'BillingStreet' : payload.BillingStreet, 'BillingCity' : payload.BillingCity, 'BillingState' : payload.BillingState, 'BillingPostalCode' : payload.BillingPostalCode, 'BillingCountry' : payload.BillingCountry}]]]></db:input-parameters>
+					</db:insert>
+				</batch:step>
+				<batch:step name="updateAccounts" doc:id="00894958-e2e7-4425-864f-2e8d75f773e4" acceptExpression="vars.recordExists != null">
+					<db:update doc:name="Update" doc:id="f65bba3f-77a5-4e2f-a7bd-1ebdf44880bc" />
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+</mule>

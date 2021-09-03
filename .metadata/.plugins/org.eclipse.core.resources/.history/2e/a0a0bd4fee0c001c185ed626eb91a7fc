@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="7182b2ed-3bf4-4149-8544-b5b07db226df" >
+		<anypoint-mq:connection clientId="2b3480629bac41c1beb00901fcaf3a93" clientSecret="c40F18bB00424cE0B3201849c91DAC43" />
+	</anypoint-mq:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="6e4f0de5-9267-4ace-845d-4d4a9c25d61d" >
+		<db:my-sql-connection host="eksprod.tools.mulesoft.com" port="30728" user="khMySQLDB" password="Password123?Sixteen" database="khMySQLDBDemo" />
+	</db:config>
+	<flow name="spoke-applicationbFlow" doc:id="36aae52b-c037-4e4d-8000-4b73b0bf54b3" >
+		<anypoint-mq:subscriber doc:name="Subscriber" doc:id="bbcfcfe7-9119-454e-99b9-f0d50335f9f7" config-ref="Anypoint_MQ_Config" destination="applicationB"/>
+		<set-variable value="#[payload.AccountName]" doc:name="appliationName set as AccountName" doc:id="2f412298-8ca5-44b5-8ffc-a647d7816583" variableName="applicationName"/>
+		<choice doc:name="Choice" doc:id="68a97da8-d550-4414-972c-8c258142a184" >
+			<when expression='#[vars.applicationName contains("B")]'>
+				<db:insert doc:name="Insert" doc:id="16b34427-0c95-46ae-ab62-af607ce680f4" config-ref="Database_Config">
+			<db:sql><![CDATA[INSERT INTO HubandSpokeAccountsB (Name, AccountName, BillingStreet, BillingCity, BillingState) VALUES (:Name, :AccountName, :BillingStreet, :BillingCity, :BillingState)]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'Name': payload.Name, 'AccountName': payload.AccountName, 'BillingStreet': payload.BillingStreet, 'BillingCity': payload.BillingCity, 'BillingState': payload.BillingState}]]]></db:input-parameters>
+		</db:insert>
+			</when>
+		</choice>
+	</flow>
+</mule>

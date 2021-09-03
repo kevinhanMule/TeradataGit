@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5f0bb6f0-8f73-4e1a-9804-20aece558d78" >
+		<db:my-sql-connection host="eksprod.tools.mulesoft.com" port="30728" user="khMySQLDB" password="Password123?Sixteen" database="khMySQLDBDemo" />
+	</db:config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="08ea6aca-bd1e-4c01-a445-f10eeb0c66a1" >
+		<salesforce:basic-connection username="kevinhan007@mulesoft.com" password="Kdh126rial!" securityToken="ZGBUl5pNgVKIDoTWV0ocmBO3" />
+	</salesforce:sfdc-config>
+	<flow name="salesforce-to-mysql-ptopFlow" doc:id="0f413b82-ef9a-45c5-9b88-bfd6d69f1903" >
+		<scheduler doc:name="Scheduler" doc:id="a0a336e0-2e36-40d6-ba3d-311b5eb87e38">
+			<scheduling-strategy>
+				<fixed-frequency frequency="5" timeUnit="SECONDS" />
+			</scheduling-strategy>
+		</scheduler>
+		<salesforce:query doc:name="Query" doc:id="fa4addb0-213b-42a4-a801-3a61d7e81b9d" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Name, BillingState, Phone FROM Account]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<logger level="INFO" doc:name="Logger" doc:id="3b5726a9-7624-4ca8-ab02-102f27f3475a" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="b3c4df53-7df9-40d7-aec7-2ec2eabfcda4" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from accounts]]></db:sql>
+		</db:select>
+		<logger level="INFO" doc:name="Logger" doc:id="7aa14d38-931e-4048-b8f6-c911c58f42aa" message="#[payload]"/>
+	</flow>
+</mule>

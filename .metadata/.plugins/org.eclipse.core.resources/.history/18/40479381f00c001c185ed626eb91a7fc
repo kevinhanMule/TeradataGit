@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="b1511b2f-6c6c-439b-9e3d-48c47a01ed13" >
+		<anypoint-mq:connection clientId="2b3480629bac41c1beb00901fcaf3a93" clientSecret="c40F18bB00424cE0B3201849c91DAC43" />
+	</anypoint-mq:config>
+	<flow name="spoke-applicationcFlow" doc:id="3876faac-ff7b-4467-97c0-03dd0f8cada1" >
+		<anypoint-mq:subscriber doc:name="Subscriber" doc:id="69d5c54f-79fe-404d-9ff3-9504c7d50478" config-ref="Anypoint_MQ_Config" destination="applicationC"/>
+		<set-variable value="#[payload.AccountName]" doc:name="Set Variable" doc:id="d21667c5-ce1a-42af-ac4f-989c6749601a" variableName="applicationName"/>
+	</flow>
+</mule>

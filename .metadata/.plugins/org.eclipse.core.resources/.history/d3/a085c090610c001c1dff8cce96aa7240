@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="ed54ae90-5763-42cc-947a-b87388d47360" >
+		<db:my-sql-connection host="eksprod.tools.mulesoft.com" port="30728" user="khMySQLDB" password="Password123?Sixteen&#10;" database="khMySQLDBDemo" />
+	</db:config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="274e1c71-154c-4fa9-a6e4-b98f45c16418" >
+		<salesforce:basic-connection username="kevinhan007@mulesoft.com" password="Kdh126rial!" securityToken="ZGBUl5pNgVKIDoTWV0ocmBO3" />
+	</salesforce:sfdc-config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d622fbd2-3cf5-4e7b-9d8a-c2a318102083" basePath="/api">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="salesforce-to-mysql-eventFlow" doc:id="e121c0c0-eafe-4788-95c7-f91e11a53f57" >
+		<http:listener doc:name="Listener" doc:id="23853223-04f3-4783-acd4-a31f4c3e5d49" config-ref="HTTP_Listener_config" path="/accountchange"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8bd6733a-a235-4229-967a-e7f7d8af0af1" message='!!@@ Payload is !!@@ --&gt; #[payload]'/>
+		<db:insert doc:name="Insert" doc:id="d0ac9935-f039-4739-929a-8e032eeb3f06" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO AccountsEvent (Name, AccountNumber, Phone, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry) VALUES (:Name, :AccountNumber, :Phone, :BillingStreet, :BillingCity, :BillingState, :BillingPostalCode, :BillingCountry)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'Name' : payload.Name, 'AccountNumber' : payload.AccountNumber, 'Phone' : payload.Phone, 'BillingStreet' : payload.BillingStreet, 'BillingCity' : payload.BillingCity, 'BillingState' : payload.BillingState, 'BillingPostalCode' : payload.BillingPostalCode, 'BillingCountry' : payload.BillingCountry}]]]></db:input-parameters>
+		</db:insert>
+	</flow>
+</mule>

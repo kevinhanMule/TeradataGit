@@ -1,0 +1,7 @@
+authenticated.users=[{"id"\:"bd31303a-2dc3-4ba4-be5c-3cd1f1ba63a1","token"\:"6e5ea9ea-9e54-43d3-a2d5-f41f16154cef","userId"\:"kevinhan","email"\:"kevinhan@mulesoft.com","refreshToken"\:"","baseUrl"\:"https\://anypoint.mulesoft.com/","org"\:{"name"\:"MuleSoft","id"\:"55fa075f-9686-4dc9-9e17-acf71c923d4b","isMaster"\:true}}]
+current.token=6e5ea9ea-9e54-43d3-a2d5-f41f16154cef
+current.user=kevinhan
+eclipse.preferences.version=1
+expiration.time=7
+org.mule.tooling.amc.apps={"userProjectMap"\:{"kevinhan"\:{"salesforce-to-mysql-event"\:"{\\"applicationName\\"\:\\"salesforce-to-mysql-event\\",\\"muleRuntime\\"\:\\"4.3.0\\",\\"properties\\"\:{}}"}}}
+org.mule.tooling.ui.properties.enable.api.dependencies=true
